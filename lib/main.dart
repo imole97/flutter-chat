@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat/screens/auth_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_chat/screens/chat_screen.dart';
+import 'package:flutter_chat/screens/splash.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -10,6 +12,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await dotenv.load(fileName: ".env");
 
   runApp(const App());
 }
@@ -28,10 +31,14 @@ class App extends StatelessWidget {
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              const SplashScreen();
+            }
+
             if (snapshot.hasData) {
               return ChatScreen();
             }
-            return AuthScreen();
+            return const AuthScreen();
           }),
     );
   }
